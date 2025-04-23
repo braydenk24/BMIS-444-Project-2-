@@ -1,0 +1,92 @@
+>>>malloy
+source: mlb_umpire is duckdb.table('mlb_umpire_scorecard_renamed.csv') 
+>>>markdown
+Which umpires have the highest accuracy?
+>>>malloy
+run: mlb_umpire -> {
+ group_by: umpire
+  aggregate: avg_accuracy is avg(accuracy)
+  order_by: avg_accuracy desc
+  limit: 120
+}
+>>>markdown
+Which umpires are most consistent?
+>>>malloy
+run: mlb_umpire -> {
+  group_by: umpire
+  aggregate: avg_consistency is avg(consistency)
+  order_by: avg_consistency desc
+  limit: 10
+}
+>>>markdown
+How many games did each umpire call?
+>>>malloy
+run: mlb_umpire -> {
+  group_by: umpire
+  aggregate: games_called is count()
+  order_by: games_called desc
+}
+>>>markdown
+ Which umpire had the most games with calls better than expected?
+>>>malloy
+run: mlb_umpire -> {
+  group_by: umpire
+  aggregate: avg_above_expected is avg(correct_calls_above_expected)
+  order_by: avg_above_expected desc
+  limit: 10
+}
+>>>markdown
+What is the average accuracy per team?
+>>>malloy
+run: mlb_umpire -> {
+  group_by: home
+  aggregate: avg_accuracy is avg(accuracy)
+  order_by: avg_accuracy desc
+}
+>>>markdown
+What’s the trend in umpire accuracy over time?
+>>>malloy
+# line_chart
+run: mlb_umpire -> {
+  group_by: game_year is year(game_date)
+  aggregate: avg_accuracy is avg(accuracy)
+  order_by: game_year
+} 
+>>>markdown
+How many incorrect calls are typically made per game?
+>>>malloy
+run: mlb_umpire -> {
+  aggregate: avg_incorrect_calls is avg(incorrect_calls)
+}
+>>>markdown
+Is there a correlation between consistency and accuracy?
+>>>malloy
+# scatter_chart
+run: mlb_umpire -> {
+  group_by: consistency_bin is round(consistency, 1)
+  group_by: accuracy_bin is round(accuracy, 1)
+  aggregate: game_count is count()
+}
+>>>markdown
+How many games had 100% accuracy?
+>>>malloy
+run: mlb_umpire -> {
+  where: accuracy = 100
+  aggregate: perfect_games is count()
+}
+>>>malloy
+
+run: mlb_umpire -> {
+  where: accuracy = 100
+  group_by: umpire, game_date, accuracy
+  order_by: game_date
+}
+>>>markdown
+Games with the Most Incorrect Calls
+>>>malloy
+
+run: mlb_umpire -> {
+  group_by: game_date, umpire, home, away, incorrect_calls
+  order_by: incorrect_calls desc
+  limit: 10
+}

@@ -1,0 +1,4 @@
+df_renamed = df.rename(columns={"date": "game_date"})
+renamed_path = "/mnt/data/mlb_umpire_scorecard_renamed.csv"
+df_renamed.to_csv(renamed_path, index=False)
+renamed_path
